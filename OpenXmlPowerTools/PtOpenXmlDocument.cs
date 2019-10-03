@@ -132,7 +132,17 @@ namespace OpenXmlPowerTools
         public OpenXmlPowerToolsDocument(string fileName)
         {
             this.FileName = fileName;
-            DocumentByteArray = File.ReadAllBytes(fileName);
+            //DocumentByteArray = File.ReadAllBytes(fileName);
+            // Allow for read of file (e.g. a template) that is open in another application.
+            // May not work against all file opens, but does when a .docx is open in Word
+            using (FileStream fileStream = new FileStream(FileName, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+            { 
+                    using (var streamReader = new MemoryStream())
+                    {
+                        fileStream.CopyTo(streamReader);
+                        DocumentByteArray = streamReader.ToArray();
+                    }
+            }
         }
 
         public OpenXmlPowerToolsDocument(string fileName, bool convertToTransitional)
