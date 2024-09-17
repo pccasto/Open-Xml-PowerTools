@@ -348,7 +348,7 @@ namespace OpenXmlPowerTools
                     int occurances = paraContents.Select((c, i) => paraContents.Substring(i)).Count(sub => sub.StartsWith("<#"));
                     if (paraContents.StartsWith("<#") && paraContents.EndsWith("#>") && occurances == 1)
                     {
-                        var xmlText = paraContents.Substring(2, paraContents.Length - 4).Trim();
+                        var xmlText = paraContents.Substring(2, paraContents.Length - 4).Trim().Replace('“', '"').Replace('”', '"');
                         XElement xml = TransformXmlTextToMetadata(te, xmlText);
                         if (xml.Name == W.p || xml.Name == W.r)
                             return xml;
@@ -693,6 +693,9 @@ namespace OpenXmlPowerTools
                     if (tableData.Count() == 0)
                         return CreateContextErrorMessage(element, "Table Select returned no data", templateError);
                     XElement table = element.Element(W.tbl);
+                    // This does not handle the case of a table without a header - don't know how to test for that...
+		    // If there was a test, the a 'has_header' variable could be set to 0 or 1 (or more for multiline header)
+		    // and used in the next line. But it appears additional logic would be needed further down as well?
                     XElement protoRow = table.Elements(W.tr).Skip(1).FirstOrDefault();
                     var footerRowsBeforeTransform = table
                         .Elements(W.tr)
